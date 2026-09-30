@@ -7,7 +7,8 @@ import {
   removeLatestCycle,
   type CycleError,
 } from '../domain/cycles';
-import type { DateKey } from '../domain/dates';
+import { isDateKey, type DateKey } from '../domain/dates';
+import { isEmptyLog, normalizeNote, parseStoredLog, type DayLog, type StoredLog } from '../domain/log';
 import type { OnboardingValue } from '../domain/onboarding';
 import type { Cycle } from '../domain/predict';
 
@@ -80,14 +81,23 @@ function mapSettings(row: SettingsRow): Settings {
   };
 }
 
-export async function loadState(db: SQLiteDatabase): Promise<{ settings: Settings | null; cycles: Cycle[] }> {
+export async function loadState(
+  db: SQLiteDatabase,
+): Promise<{ settings: Settings | null; cycles: Cycle[]; logs: DayLog[] }> {
   const row = await db.getFirstAsync<SettingsRow>('SELECT * FROM settings WHERE id = 1');
   const cycleRows = await db.getAllAsync<CycleRow>(
     'SELECT start_date, end_date FROM cycles ORDER BY start_date',
   );
+  const logRows = await db.getAllAsync<StoredLog>(
+    'SELECT date, flow, pain, mood, discharge, note FROM logs ORDER BY date',
+  );
   return {
     settings: row ? mapSettings(row) : null,
     cycles: cycleRows.map((cycle) => ({ startDate: cycle.start_date, endDate: cycle.end_date })),
+    logs: logRows.flatMap((log) => {
+      const parsed = parseStoredLog(log);
+      return parsed ? [parsed] : [];
+    }),
   };
 }
 
@@ -156,4 +166,45 @@ export async function saveRemoveLatest(db: SQLiteDatabase, cycles: Cycle[]): Pro
 
 export async function saveFertileWindow(db: SQLiteDatabase, show: boolean): Promise<void> {
   await db.runAsync('UPDATE settings SET show_fertile_window = ? WHERE id = 1', show ? 1 : 0);
+}
+
+export async function saveReminder(db: SQLiteDatabase, enabled: boolean, daysBefore: number): Promise<void> {
+  await db.runAsync(
+    'UPDATE settings SET reminder_enabled = ?, reminder_days_before = ? WHERE id = 1',
+    enabled ? 1 : 0,
+    daysBefore,
+  );
+}
+
+export async function saveDayLog(db: SQLiteDatabase, log: DayLog, today: DateKey): Promise<void> {
+  if (!isDateKey(log.date) || log.date > today) return;
+  const note = normalizeNote(log.note);
+  const stored = { ...log, note };
+  if (isEmptyLog(stored)) {
+    await db.runAsync('DELETE FROM logs WHERE date = ?', log.date);
+    return;
+  }
+  await db.runAsync(
+    `INSERT INTO logs (date, flow, pain, mood, discharge, note) VALUES (?, ?, ?, ?, ?, ?)
+     ON CONFLICT(date) DO UPDATE SET
+       flow = excluded.flow,
+       pain = excluded.pain,
+       mood = excluded.mood,
+       discharge = excluded.discharge,
+       note = excluded.note`,
+    stored.date,
+    stored.flow,
+    stored.pain,
+    stored.mood,
+    stored.discharge,
+    stored.note,
+  );
+}
+
+export async function deleteAll(db: SQLiteDatabase): Promise<void> {
+  await db.withTransactionAsync(async () => {
+    await db.runAsync('DELETE FROM logs');
+    await db.runAsync('DELETE FROM cycles');
+    await db.runAsync('DELETE FROM settings');
+  });
 }

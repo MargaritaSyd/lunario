@@ -35,6 +35,14 @@ export default function CalendarScreen() {
       <Stack.Screen options={{ headerTitle: () => <CalendarTitle /> }} />
       <Screen>
       <ScrollView contentContainerStyle={styles.content}>
+        <View style={styles.links}>
+          <Pressable accessibilityRole="button" onPress={() => router.push('./history')} style={styles.linkButton}>
+            <Text style={styles.link}>{messages.history}</Text>
+          </Pressable>
+          <Pressable accessibilityRole="button" onPress={() => router.push('./settings')} style={styles.linkButton}>
+            <Text style={styles.link}>{messages.settings}</Text>
+          </Pressable>
+        </View>
         <View style={styles.monthNav}>
           <Pressable accessibilityLabel={messages.previousMonth} onPress={() => setMonth(addMonthsKey(month, -1))} style={styles.navButton}>
             <Text style={styles.navLabel}>‹</Text>
@@ -197,6 +205,9 @@ function SummaryRow({ label, value }: { label: string; value: string }) {
 
 const styles = StyleSheet.create({
   content: { padding: 20, gap: 16, paddingBottom: 40 },
+  links: { flexDirection: 'row', gap: 16 },
+  linkButton: { minHeight: 44, justifyContent: 'center' },
+  link: { color: theme.focus, fontSize: 16, fontWeight: '600' },
   headerTitle: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   headerTitleText: { color: theme.text, fontSize: 17, fontWeight: '600' },
   monthNav: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },

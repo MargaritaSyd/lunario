@@ -3,12 +3,14 @@ import { useState } from 'react';
 import { Alert, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { Button } from '../../components/button';
+import { LogForm } from '../../components/log-form';
 import { MoonIcon } from '../../components/moon-icon';
 import { Screen } from '../../components/screen';
 import { useLunario } from '../../context/lunario';
 import { dateLocale, messages } from '../../i18n';
 import { applyPeriodEnd, applyPeriodStart, type CycleError } from '../../domain/cycles';
 import { formatDateKey, isDateKey, todayKey } from '../../domain/dates';
+import { blankLog } from '../../domain/log';
 import { moonPhase } from '../../domain/moon';
 import { markDay, predict, sortCycles } from '../../domain/predict';
 import { theme } from '../../theme';
@@ -21,7 +23,7 @@ function param(value: string | string[] | undefined): string {
 export default function DayScreen() {
   const { date: dateParam } = useLocalSearchParams<{ date: string | string[] }>();
   const date = param(dateParam);
-  const { settings, cycles, logPeriodStart, logPeriodEnd, removeLatestPeriod } = useLunario();
+  const { settings, cycles, logs, logPeriodStart, logPeriodEnd, removeLatestPeriod, saveLog } = useLunario();
   const [today] = useState(todayKey);
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
@@ -92,6 +94,9 @@ export default function DayScreen() {
             <Text style={styles.quiet}>{messages.nothingThisDay}</Text>
           )}
         </View>
+        {date <= today ? (
+          <LogForm saved={logs.find((log) => log.date === date) ?? blankLog(date)} onSave={saveLog} />
+        ) : null}
         <View style={styles.actions}>
           {canStart ? (
             <Button label={messages.periodStarted} disabled={saving} onPress={() => void run(() => logPeriodStart(date))} />

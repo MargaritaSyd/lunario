@@ -1,4 +1,5 @@
 import type { CycleError } from '../domain/cycles';
+import type { Discharge, Flow, Mood, Pain } from '../domain/log';
 import type { OnboardingError } from '../domain/onboarding';
 
 export type WeekdayLabels = [string, string, string, string, string, string, string];
@@ -50,6 +51,40 @@ export type Messages = {
   monthYear: string;
   monthDay: string;
   moon: Record<'new' | 'waxing' | 'full' | 'waning', string>;
+  flow: string;
+  pain: string;
+  mood: string;
+  discharge: string;
+  note: string;
+  noteHint: string;
+  saveLog: string;
+  flowOption: Record<Flow, string>;
+  painOption: Record<Pain, string>;
+  moodOption: Record<Mood, string>;
+  dischargeOption: Record<Discharge, string>;
+  history: string;
+  settings: string;
+  averageCycle: string;
+  historyEmpty: string;
+  bleedingValue: string;
+  ongoing: string;
+  reminder: string;
+  reminderHint: string;
+  daysBefore: string;
+  daysBeforeHint: string;
+  reminderDaysError: string;
+  notificationsDenied: string;
+  reminderTitle: string;
+  reminderChannel: string;
+  reminderToday: string;
+  reminderTomorrow: string;
+  reminderInDays: string;
+  exportData: string;
+  exportHint: string;
+  exportFailed: string;
+  deleteAll: string;
+  deleteAllTitle: string;
+  deleteAllBody: string;
   onboardingError: Record<OnboardingError, string>;
   cycleError: Record<CycleError, string>;
 };
@@ -107,6 +142,40 @@ export const en: Messages = {
     full: 'Full moon',
     waning: 'Waning',
   },
+  flow: 'Flow',
+  pain: 'Pain',
+  mood: 'Mood',
+  discharge: 'Discharge',
+  note: 'Note',
+  noteHint: 'Optional. It stays on this phone.',
+  saveLog: 'Save this day',
+  flowOption: { spotting: 'Spotting', light: 'Light', medium: 'Medium', heavy: 'Heavy' },
+  painOption: { mild: 'Mild', moderate: 'Moderate', severe: 'Severe' },
+  moodOption: { calm: 'Calm', sensitive: 'Sensitive', low: 'Low', irritable: 'Irritable' },
+  dischargeOption: { dry: 'Dry', sticky: 'Sticky', creamy: 'Creamy', 'egg-white': 'Egg-white' },
+  history: 'History',
+  settings: 'Settings',
+  averageCycle: 'Average cycle',
+  historyEmpty: 'Cycle length shows up after a second period starts.',
+  bleedingValue: '{{count}} days of bleeding',
+  ongoing: 'Ongoing',
+  reminder: 'Reminder',
+  reminderHint: 'A notification before the estimated period. It is not exact to the minute.',
+  daysBefore: 'Days before',
+  daysBeforeHint: 'How many days before the estimated start. Use a whole number from 0 to 7.',
+  reminderDaysError: 'Use a whole number from 0 to 7.',
+  notificationsDenied: 'Notifications are off for Lunario in this phone\'s settings.',
+  reminderTitle: 'Lunario',
+  reminderChannel: 'Reminders',
+  reminderToday: 'Your period is estimated to start today.',
+  reminderTomorrow: 'Your period is estimated to start tomorrow.',
+  reminderInDays: 'Your period is estimated to start in {{count}} days.',
+  exportData: 'Export',
+  exportHint: 'A JSON file of what is stored on this phone.',
+  exportFailed: 'Could not export the file.',
+  deleteAll: 'Delete everything',
+  deleteAllTitle: 'Delete everything?',
+  deleteAllBody: 'This deletes periods, notes, and settings from this phone.',
   onboardingError: {
     'invalid-date': 'Enter the day your last period started. It cannot be in the future.',
     'cycle-length':

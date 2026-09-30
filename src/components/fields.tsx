@@ -4,6 +4,7 @@ import { useState, type ReactNode } from 'react';
 import { Platform, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 
 import { endOfToday, formatDateKey, isDateKey } from '../domain/dates';
+import { dateLocale, messages } from '../i18n';
 import { theme } from '../theme';
 
 export function Field({
@@ -78,7 +79,9 @@ export function DateField({
       ) : (
         <>
           <Pressable accessibilityRole="button" onPress={() => setOpen(true)} style={styles.input}>
-            <Text style={styles.inputText}>{isDateKey(value) ? formatDateKey(value) : value}</Text>
+            <Text style={styles.inputText}>
+              {isDateKey(value) ? formatDateKey(value, messages.dateWithYear, dateLocale) : value}
+            </Text>
           </Pressable>
           {open ? (
             <DateTimePicker
