@@ -3,11 +3,13 @@ import { useState } from 'react';
 import { Alert, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { Button } from '../../components/button';
+import { MoonIcon } from '../../components/moon-icon';
 import { Screen } from '../../components/screen';
 import { useLunario } from '../../context/lunario';
 import { dateLocale, messages } from '../../i18n';
 import { applyPeriodEnd, applyPeriodStart, type CycleError } from '../../domain/cycles';
 import { formatDateKey, isDateKey, todayKey } from '../../domain/dates';
+import { moonPhase } from '../../domain/moon';
 import { markDay, predict, sortCycles } from '../../domain/predict';
 import { theme } from '../../theme';
 
@@ -40,6 +42,7 @@ export default function DayScreen() {
   const canEnd = applyPeriodEnd(cycles, date, today).ok;
   const canRemove = latest?.startDate === date;
 
+  const phase = moonPhase(date);
   const facts = [
     mark.period ? messages.period : null,
     mark.predicted ? messages.predictedPeriod : null,
@@ -75,6 +78,10 @@ export default function DayScreen() {
       <Screen>
       <ScrollView contentContainerStyle={styles.content}>
         <View style={styles.facts}>
+          <View style={styles.moonRow}>
+            <MoonIcon phase={phase} size={18} />
+            <Text style={styles.fact}>{messages.moon[phase]}</Text>
+          </View>
           {facts.length > 0 ? (
             facts.map((fact) => (
               <Text key={fact} style={styles.fact}>
@@ -116,6 +123,7 @@ const styles = StyleSheet.create({
   content: { padding: 20, gap: 20, paddingBottom: 40 },
   invalid: { color: theme.text, fontSize: 16, padding: 20 },
   facts: { gap: 8 },
+  moonRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   fact: { color: theme.text, fontSize: 18, fontWeight: '600' },
   quiet: { color: theme.muted, fontSize: 16, lineHeight: 24 },
   actions: { gap: 12 },

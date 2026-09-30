@@ -4,6 +4,7 @@ import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { Button } from '../components/button';
 import { DateField, NumberField } from '../components/fields';
+import { Mark } from '../components/mark';
 import { Screen } from '../components/screen';
 import { useLunario } from '../context/lunario';
 import { messages } from '../i18n';
@@ -42,6 +43,7 @@ export default function OnboardingScreen() {
     <Screen includeTop>
       <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
         <View style={styles.intro}>
+          <Mark size={88} />
           <Text style={styles.title}>{messages.appName}</Text>
           <Text style={styles.subtitle}>{messages.onboardingSubtitle}</Text>
         </View>

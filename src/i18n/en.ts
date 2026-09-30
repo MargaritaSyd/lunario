@@ -49,6 +49,7 @@ export type Messages = {
   dateWithYear: string;
   monthYear: string;
   monthDay: string;
+  moon: Record<'new' | 'waxing' | 'full' | 'waning', string>;
   onboardingError: Record<OnboardingError, string>;
   cycleError: Record<CycleError, string>;
 };
@@ -100,6 +101,12 @@ export const en: Messages = {
   dateWithYear: 'MMMM d, yyyy',
   monthYear: 'MMMM yyyy',
   monthDay: 'MMMM d',
+  moon: {
+    new: 'New moon',
+    waxing: 'Waxing',
+    full: 'Full moon',
+    waning: 'Waning',
+  },
   onboardingError: {
     'invalid-date': 'Enter the day your last period started. It cannot be in the future.',
     'cycle-length':

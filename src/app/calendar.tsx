@@ -1,12 +1,15 @@
-import { Redirect, router, useFocusEffect } from 'expo-router';
+import { Redirect, router, Stack, useFocusEffect } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Switch, Text, View, type ViewStyle } from 'react-native';
 
+import { Mark } from '../components/mark';
+import { MoonIcon } from '../components/moon-icon';
 import { Screen } from '../components/screen';
 import { useLunario } from '../context/lunario';
 import { cycleLengthLabel, dateLocale, lateLabel, messages } from '../i18n';
 import { addMonthsKey, formatDateKey, todayKey, type DateKey } from '../domain/dates';
 import { monthGrid } from '../domain/month';
+import { moonPhase } from '../domain/moon';
 import { markDay, predict, type DayMark } from '../domain/predict';
 import { theme } from '../theme';
 
@@ -28,7 +31,9 @@ export default function CalendarScreen() {
   const showingCurrentMonth = month.slice(0, 7) === today.slice(0, 7);
 
   return (
-    <Screen>
+    <>
+      <Stack.Screen options={{ headerTitle: () => <CalendarTitle /> }} />
+      <Screen>
       <ScrollView contentContainerStyle={styles.content}>
         <View style={styles.monthNav}>
           <Pressable accessibilityLabel={messages.previousMonth} onPress={() => setMonth(addMonthsKey(month, -1))} style={styles.navButton}>
@@ -72,6 +77,14 @@ export default function CalendarScreen() {
           <Legend swatch={styles.ovulationSwatch} label={messages.ovulation} />
           {settings.showFertileWindow ? <Legend swatch={styles.fertileSwatch} label={messages.fertileWindow} /> : null}
         </View>
+        <View style={styles.legend}>
+          {(['new', 'waxing', 'full', 'waning'] as const).map((phase) => (
+            <View key={phase} style={styles.legendItem}>
+              <MoonIcon phase={phase} />
+              <Text style={styles.legendLabel}>{messages.moon[phase]}</Text>
+            </View>
+          ))}
+        </View>
         <View style={styles.switchRow}>
           <Text style={styles.switchLabel}>{messages.fertileWindow}</Text>
           <Switch
@@ -109,6 +122,16 @@ export default function CalendarScreen() {
         <Text style={styles.disclaimer}>{messages.disclaimer}</Text>
       </ScrollView>
     </Screen>
+    </>
+  );
+}
+
+function CalendarTitle() {
+  return (
+    <View style={styles.headerTitle}>
+      <Mark size={36} />
+      <Text style={styles.headerTitleText}>{messages.appName}</Text>
+    </View>
   );
 }
 
@@ -123,7 +146,9 @@ function DayCell({
   mark: DayMark;
   onPress: () => void;
 }) {
+  const phase = moonPhase(date);
   const details = [
+    messages.moon[phase],
     mark.period ? messages.period : null,
     mark.predicted ? messages.predictedPeriod : null,
     mark.ovulation ? messages.ovulation : null,
@@ -146,6 +171,7 @@ function DayCell({
         ]}
       >
         <Text style={[styles.dayNumber, mark.period ? styles.periodNumber : null]}>{Number(date.slice(-2))}</Text>
+        <MoonIcon phase={phase} />
       </Pressable>
     </View>
   );
@@ -171,6 +197,8 @@ function SummaryRow({ label, value }: { label: string; value: string }) {
 
 const styles = StyleSheet.create({
   content: { padding: 20, gap: 16, paddingBottom: 40 },
+  headerTitle: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  headerTitleText: { color: theme.text, fontSize: 17, fontWeight: '600' },
   monthNav: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   navButton: { minWidth: 44, minHeight: 44, alignItems: 'center', justifyContent: 'center' },
   navLabel: { color: theme.text, fontSize: 32, lineHeight: 36 },
@@ -186,6 +214,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     alignItems: 'center',
     justifyContent: 'center',
+    gap: 1,
     borderWidth: 1,
     borderColor: 'transparent',
     backgroundColor: theme.surface,

@@ -46,6 +46,12 @@ export const es: Messages = {
   dateWithYear: "d 'de' MMMM 'de' yyyy",
   monthYear: 'MMMM yyyy',
   monthDay: "d 'de' MMMM",
+  moon: {
+    new: 'Luna nueva',
+    waxing: 'Creciente',
+    full: 'Luna llena',
+    waning: 'Menguante',
+  },
   onboardingError: {
     'invalid-date': 'El día en que empezó el último periodo. No puede ser una fecha futura.',
     'cycle-length':
