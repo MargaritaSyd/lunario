@@ -1,0 +1,15 @@
+export const theme = {
+  bg: '#F7F9FA',
+  surface: '#FFFFFF',
+  elevated: '#FFFFFF',
+  border: '#D7DEE4',
+  text: '#1C2A38',
+  muted: '#5C6E7E',
+  accent: '#B7C8B1',
+  focus: '#4A90E2',
+  period: '#DC745C',
+  fertile: '#4A90E2',
+  onAccent: '#1C2A38',
+  predicted: 'rgba(220, 116, 92, 0.22)',
+  fertileWash: 'rgba(74, 144, 226, 0.22)',
+};

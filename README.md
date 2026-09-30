@@ -16,7 +16,7 @@ The smallest version worth publishing:
 - **Reminder.** A local notification a few days before the estimated period.
 - **On-device data.** No account. Delete everything, and export a file.
 
-The interface is entirely in English.
+Copy is written in English. The phone language chooses what the user sees. Spanish is included, and any other language falls back to English.
 
 ## Out of scope
 
