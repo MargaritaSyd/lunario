@@ -10,7 +10,7 @@ import {
   type CycleError,
 } from '../domain/cycles';
 import { isDateKey, type DateKey } from '../domain/dates';
-import { isEmptyLog, normalizeNote, parseStoredLog, type DayLog, type StoredLog } from '../domain/log';
+import { encodeList, isEmptyLog, normalizeNote, parseStoredLog, type DayLog, type StoredLog } from '../domain/log';
 import type { OnboardingValue } from '../domain/onboarding';
 import type { Cycle } from '../domain/predict';
 
@@ -69,6 +69,10 @@ CREATE TABLE IF NOT EXISTS logs (
 export async function openDatabase(): Promise<SQLiteDatabase> {
   const db = await openDatabaseAsync('lunario.db');
   await db.execAsync(SCHEMA);
+  const columns = await db.getAllAsync<{ name: string }>('PRAGMA table_info(logs)');
+  if (!columns.some((column) => column.name === 'sensations')) {
+    await db.execAsync('ALTER TABLE logs ADD COLUMN sensations TEXT');
+  }
   return db;
 }
 
@@ -91,7 +95,7 @@ export async function loadState(
     'SELECT start_date, end_date FROM cycles ORDER BY start_date',
   );
   const logRows = await db.getAllAsync<StoredLog>(
-    'SELECT date, flow, pain, mood, discharge, note FROM logs ORDER BY date',
+    'SELECT date, flow, sensations, pain, mood, discharge, note FROM logs ORDER BY date',
   );
   return {
     settings: row ? mapSettings(row) : null,
@@ -201,17 +205,19 @@ export async function saveDayLog(db: SQLiteDatabase, log: DayLog, today: DateKey
     return;
   }
   await db.runAsync(
-    `INSERT INTO logs (date, flow, pain, mood, discharge, note) VALUES (?, ?, ?, ?, ?, ?)
+    `INSERT INTO logs (date, flow, sensations, pain, mood, discharge, note) VALUES (?, ?, ?, ?, ?, ?, ?)
      ON CONFLICT(date) DO UPDATE SET
        flow = excluded.flow,
+       sensations = excluded.sensations,
        pain = excluded.pain,
        mood = excluded.mood,
        discharge = excluded.discharge,
        note = excluded.note`,
     stored.date,
     stored.flow,
-    stored.pain,
-    stored.mood,
+    encodeList(stored.sensations),
+    encodeList(stored.pains),
+    encodeList(stored.moods),
     stored.discharge,
     stored.note,
   );

@@ -1,18 +1,23 @@
 import { useEffect, useState } from 'react';
 import { StyleSheet, Text, TextInput, View } from 'react-native';
 
-import { DISCHARGES, FLOWS, MOODS, NOTE_LIMIT, PAINS, normalizeNote, type DayLog } from '../domain/log';
+import { DISCHARGES, FLOWS, MOODS, NOTE_LIMIT, PAINS, SENSATIONS, normalizeNote, type DayLog } from '../domain/log';
 import { messages } from '../i18n';
 import { theme } from '../theme';
 import { Button } from './button';
-import { Choices } from './choices';
+import { Choices, MultiChoices } from './choices';
 import { Field } from './fields';
+
+function sameList(left: readonly string[], right: readonly string[]): boolean {
+  return left.length === right.length && left.every((item, index) => item === right[index]);
+}
 
 function sameLog(a: DayLog, b: DayLog): boolean {
   return (
     a.flow === b.flow &&
-    a.pain === b.pain &&
-    a.mood === b.mood &&
+    sameList(a.sensations, b.sensations) &&
+    sameList(a.pains, b.pains) &&
+    sameList(a.moods, b.moods) &&
     a.discharge === b.discharge &&
     normalizeNote(a.note) === normalizeNote(b.note)
   );
@@ -51,19 +56,26 @@ export function LogForm({ saved, onSave }: { saved: DayLog; onSave: (log: DayLog
         labels={messages.flowOption}
         onChange={(flow) => setDraft((current) => ({ ...current, flow }))}
       />
-      <Choices
+      <MultiChoices
+        label={messages.sensations}
+        values={draft.sensations}
+        options={SENSATIONS}
+        labels={messages.sensationOption}
+        onChange={(sensations) => setDraft((current) => ({ ...current, sensations }))}
+      />
+      <MultiChoices
         label={messages.pain}
-        value={draft.pain}
+        values={draft.pains}
         options={PAINS}
         labels={messages.painOption}
-        onChange={(pain) => setDraft((current) => ({ ...current, pain }))}
+        onChange={(pains) => setDraft((current) => ({ ...current, pains }))}
       />
-      <Choices
+      <MultiChoices
         label={messages.mood}
-        value={draft.mood}
+        values={draft.moods}
         options={MOODS}
         labels={messages.moodOption}
-        onChange={(mood) => setDraft((current) => ({ ...current, mood }))}
+        onChange={(moods) => setDraft((current) => ({ ...current, moods }))}
       />
       <Choices
         label={messages.discharge}

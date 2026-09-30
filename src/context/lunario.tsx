@@ -91,7 +91,7 @@ export function LunarioProvider({ children }: { children: ReactNode }) {
       body: reminderLabel(settings.reminderDaysBefore),
       channelName: messages.reminderChannel,
     }).catch((cause: unknown) => {
-      console.error(cause);
+      console.warn('Could not schedule the reminder.', cause);
     });
   }, [ready, settings, cycles]);
 

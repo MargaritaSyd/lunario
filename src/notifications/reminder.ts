@@ -1,3 +1,4 @@
+import { isRunningInExpoGo } from 'expo';
 import { Platform } from 'react-native';
 
 import type { DateKey } from '../domain/dates';
@@ -12,7 +13,7 @@ type NotificationApi = {
   setNotificationChannelAsync: (channelId: string, channel: { name: string; importance: number }) => Promise<unknown>;
   scheduleNotificationAsync: (request: {
     content: { title: string; body: string };
-    trigger: { type: string; date: Date; channelId: string };
+    trigger: { type: string; date: Date; channelId?: string };
   }) => Promise<string>;
   dateTrigger: string;
   importanceDefault: number;
@@ -55,7 +56,7 @@ function loadNotifications(): Promise<NotificationApi | null> {
         importanceDefault: importance.AndroidImportance.DEFAULT,
       };
     } catch (cause) {
-      console.error(cause);
+      console.warn('Reminders are not available on this phone.', cause);
       return null;
     }
   })();
@@ -72,9 +73,13 @@ export async function ensureNotificationPermission(): Promise<boolean> {
 }
 
 export async function cancelReminder(): Promise<void> {
-  const notifications = await loadNotifications();
-  if (!notifications) return;
-  await notifications.cancelAllScheduledNotificationsAsync();
+  try {
+    const notifications = await loadNotifications();
+    if (!notifications) return;
+    await notifications.cancelAllScheduledNotificationsAsync();
+  } catch (cause) {
+    console.warn('Could not clear the reminder.', cause);
+  }
 }
 
 export async function syncReminder(input: {
@@ -93,25 +98,30 @@ export async function syncReminder(input: {
   const notifications = await loadNotifications();
   if (!notifications) return;
 
-  const permission = await notifications.getPermissionsAsync();
-  if (!permission.granted) return;
+  try {
+    const permission = await notifications.getPermissionsAsync();
+    if (!permission.granted) return;
 
-  const when = reminderTrigger(reminderDate(input.nextStart, input.daysBefore, input.today, input.late));
-  if (!when) return;
+    const when = reminderTrigger(reminderDate(input.nextStart, input.daysBefore, input.today, input.late));
+    if (!when) return;
 
-  if (Platform.OS === 'android') {
-    await notifications.setNotificationChannelAsync(CHANNEL_ID, {
-      name: input.channelName,
-      importance: notifications.importanceDefault,
+    const inExpoGo = isRunningInExpoGo();
+    if (Platform.OS === 'android' && !inExpoGo) {
+      await notifications.setNotificationChannelAsync(CHANNEL_ID, {
+        name: input.channelName,
+        importance: notifications.importanceDefault,
+      });
+    }
+
+    await notifications.scheduleNotificationAsync({
+      content: { title: input.title, body: input.body },
+      trigger: {
+        type: notifications.dateTrigger,
+        date: when,
+        channelId: Platform.OS === 'android' && !inExpoGo ? CHANNEL_ID : undefined,
+      },
     });
+  } catch (cause) {
+    console.warn('Could not schedule the reminder.', cause);
   }
-
-  await notifications.scheduleNotificationAsync({
-    content: { title: input.title, body: input.body },
-    trigger: {
-      type: notifications.dateTrigger,
-      date: when,
-      channelId: CHANNEL_ID,
-    },
-  });
 }

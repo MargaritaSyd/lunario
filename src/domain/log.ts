@@ -1,11 +1,13 @@
 import { isDateKey, type DateKey } from './dates';
 
 export const FLOWS = ['spotting', 'light', 'medium', 'heavy'] as const;
-export const PAINS = ['mild', 'moderate', 'severe'] as const;
-export const MOODS = ['calm', 'sensitive', 'low', 'irritable'] as const;
+export const SENSATIONS = ['bloating', 'breast-tenderness', 'fatigue', 'energy', 'nausea', 'craving'] as const;
+export const PAINS = ['cramps', 'head', 'back', 'breasts', 'low-back', 'pelvis', 'mild', 'moderate', 'severe'] as const;
+export const MOODS = ['calm', 'sensitive', 'low', 'irritable', 'happy', 'anxious', 'tearful'] as const;
 export const DISCHARGES = ['dry', 'sticky', 'creamy', 'egg-white'] as const;
 
 export type Flow = (typeof FLOWS)[number];
+export type Sensation = (typeof SENSATIONS)[number];
 export type Pain = (typeof PAINS)[number];
 export type Mood = (typeof MOODS)[number];
 export type Discharge = (typeof DISCHARGES)[number];
@@ -13,8 +15,9 @@ export type Discharge = (typeof DISCHARGES)[number];
 export type DayLog = {
   date: DateKey;
   flow: Flow | null;
-  pain: Pain | null;
-  mood: Mood | null;
+  sensations: Sensation[];
+  pains: Pain[];
+  moods: Mood[];
   discharge: Discharge | null;
   note: string;
 };
@@ -24,6 +27,7 @@ export const NOTE_LIMIT = 500;
 export type StoredLog = {
   date: string;
   flow: string | null;
+  sensations: string | null;
   pain: string | null;
   mood: string | null;
   discharge: string | null;
@@ -31,30 +35,51 @@ export type StoredLog = {
 };
 
 export function blankLog(date: DateKey): DayLog {
-  return { date, flow: null, pain: null, mood: null, discharge: null, note: '' };
+  return { date, flow: null, sensations: [], pains: [], moods: [], discharge: null, note: '' };
 }
 
 export function normalizeNote(note: string): string {
   return note.trim().slice(0, NOTE_LIMIT);
 }
 
-export function isEmptyLog(log: DayLog): boolean {
-  return log.flow === null && log.pain === null && log.mood === null && log.discharge === null && normalizeNote(log.note) === '';
+export function encodeList(values: readonly string[]): string | null {
+  return values.length === 0 ? null : values.join(',');
 }
 
-function oneOf<T extends string>(value: string | null, options: readonly T[]): T | null {
-  if (value === null) return null;
+export function isEmptyLog(log: DayLog): boolean {
+  return (
+    log.flow === null &&
+    log.sensations.length === 0 &&
+    log.pains.length === 0 &&
+    log.moods.length === 0 &&
+    log.discharge === null &&
+    normalizeNote(log.note) === ''
+  );
+}
+
+function oneOf<T extends string>(value: string, options: readonly T[]): T | null {
   return options.find((option) => option === value) ?? null;
+}
+
+function manyOf<T extends string>(value: string | null, options: readonly T[]): T[] {
+  if (!value) return [];
+  return options.filter((option) =>
+    value
+      .split(',')
+      .map((part) => part.trim())
+      .includes(option),
+  );
 }
 
 export function parseStoredLog(row: StoredLog): DayLog | null {
   if (!isDateKey(row.date)) return null;
   return {
     date: row.date,
-    flow: oneOf(row.flow, FLOWS),
-    pain: oneOf(row.pain, PAINS),
-    mood: oneOf(row.mood, MOODS),
-    discharge: oneOf(row.discharge, DISCHARGES),
+    flow: row.flow ? oneOf(row.flow, FLOWS) : null,
+    sensations: manyOf(row.sensations, SENSATIONS),
+    pains: manyOf(row.pain, PAINS),
+    moods: manyOf(row.mood, MOODS),
+    discharge: row.discharge ? oneOf(row.discharge, DISCHARGES) : null,
     note: row.note ?? '',
   };
 }

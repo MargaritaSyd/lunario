@@ -9,6 +9,7 @@ import { Screen } from '../../components/screen';
 import { useLunario } from '../../context/lunario';
 import { dateLocale, messages } from '../../i18n';
 import { applyPeriodEnd, applyPeriodStart, type CycleError } from '../../domain/cycles';
+import { dayContext } from '../../domain/day-context';
 import { formatDateKey, isDateKey, todayKey } from '../../domain/dates';
 import { blankLog } from '../../domain/log';
 import { moonPhase } from '../../domain/moon';
@@ -45,6 +46,15 @@ export default function DayScreen() {
   const canRemove = latest?.startDate === date;
 
   const phase = moonPhase(date);
+  const context = dayContext(cycles, settings, today, date);
+  const moments = [
+    context.currentPeriod ? messages.currentPeriod : null,
+    context.pastPeriod ? messages.pastPeriodMoment : null,
+    context.ovulation ? messages.ovulation : null,
+    context.fertile ? messages.fertileWindow : null,
+    context.beforeBleeding ? messages.beforeBleeding : null,
+    context.afterBleeding ? messages.afterBleeding : null,
+  ].filter((moment): moment is string => moment !== null);
   const facts = [
     mark.period ? messages.period : null,
     mark.predicted ? messages.predictedPeriod : null,
@@ -95,7 +105,19 @@ export default function DayScreen() {
           )}
         </View>
         {date <= today ? (
-          <LogForm saved={logs.find((log) => log.date === date) ?? blankLog(date)} onSave={saveLog} />
+          <View style={styles.log}>
+            {moments.length > 0 ? (
+              <View style={styles.moments}>
+                {moments.map((moment) => (
+                  <Text key={moment} style={styles.moment}>
+                    {moment}
+                  </Text>
+                ))}
+              </View>
+            ) : null}
+            <Text style={styles.quiet}>{messages.logMomentHint}</Text>
+            <LogForm saved={logs.find((log) => log.date === date) ?? blankLog(date)} onSave={saveLog} />
+          </View>
         ) : null}
         <View style={styles.actions}>
           {canStart ? (
@@ -131,6 +153,18 @@ const styles = StyleSheet.create({
   moonRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   fact: { color: theme.text, fontSize: 18, fontWeight: '600' },
   quiet: { color: theme.muted, fontSize: 16, lineHeight: 24 },
+  log: { gap: 12 },
+  moments: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  moment: {
+    overflow: 'hidden',
+    color: theme.text,
+    backgroundColor: theme.surface,
+    borderRadius: 999,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    fontSize: 14,
+    fontWeight: '600',
+  },
   actions: { gap: 12 },
   error: { color: theme.period, fontSize: 15, lineHeight: 22 },
   disclaimer: { color: theme.muted, fontSize: 14, lineHeight: 20 },

@@ -1,5 +1,5 @@
 import type { CycleError } from '../domain/cycles';
-import type { Discharge, Flow, Mood, Pain } from '../domain/log';
+import type { Discharge, Flow, Mood, Pain, Sensation } from '../domain/log';
 import type { OnboardingError } from '../domain/onboarding';
 
 export type WeekdayLabels = [string, string, string, string, string, string, string];
@@ -61,7 +61,13 @@ export type Messages = {
   monthYear: string;
   monthDay: string;
   moon: Record<'new' | 'waxing' | 'full' | 'waning', string>;
+  currentPeriod: string;
+  pastPeriodMoment: string;
+  beforeBleeding: string;
+  afterBleeding: string;
+  logMomentHint: string;
   flow: string;
+  sensations: string;
   pain: string;
   mood: string;
   discharge: string;
@@ -69,6 +75,7 @@ export type Messages = {
   noteHint: string;
   saveLog: string;
   flowOption: Record<Flow, string>;
+  sensationOption: Record<Sensation, string>;
   painOption: Record<Pain, string>;
   moodOption: Record<Mood, string>;
   dischargeOption: Record<Discharge, string>;
@@ -163,15 +170,47 @@ export const en: Messages = {
     waning: 'Waning',
   },
   flow: 'Flow',
-  pain: 'Pain',
-  mood: 'Mood',
+  sensations: 'Sensations',
+  pain: 'Pains',
+  mood: 'Moods',
   discharge: 'Discharge',
   note: 'Note',
   noteHint: 'Optional. It stays on this phone.',
   saveLog: 'Save this day',
+  currentPeriod: 'Current period',
+  pastPeriodMoment: 'Past period',
+  beforeBleeding: 'Before bleeding',
+  afterBleeding: 'After bleeding',
+  logMomentHint: 'Sensations, pains, and moods can be added on this day.',
   flowOption: { spotting: 'Spotting', light: 'Light', medium: 'Medium', heavy: 'Heavy' },
-  painOption: { mild: 'Mild', moderate: 'Moderate', severe: 'Severe' },
-  moodOption: { calm: 'Calm', sensitive: 'Sensitive', low: 'Low', irritable: 'Irritable' },
+  sensationOption: {
+    bloating: 'Bloating',
+    'breast-tenderness': 'Breast tenderness',
+    fatigue: 'Fatigue',
+    energy: 'Energy',
+    nausea: 'Nausea',
+    craving: 'Craving',
+  },
+  painOption: {
+    cramps: 'Cramps',
+    head: 'Head',
+    back: 'Back',
+    breasts: 'Breasts',
+    'low-back': 'Low back',
+    pelvis: 'Pelvis',
+    mild: 'Mild',
+    moderate: 'Moderate',
+    severe: 'Severe',
+  },
+  moodOption: {
+    calm: 'Calm',
+    sensitive: 'Sensitive',
+    low: 'Low',
+    irritable: 'Irritable',
+    happy: 'Cheerful',
+    anxious: 'Anxious',
+    tearful: 'Tearful',
+  },
   dischargeOption: { dry: 'Dry', sticky: 'Sticky', creamy: 'Creamy', 'egg-white': 'Egg-white' },
   history: 'History',
   settings: 'Settings',
