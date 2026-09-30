@@ -3,8 +3,10 @@ import { openDatabaseAsync, type SQLiteDatabase } from 'expo-sqlite';
 import {
   applyPeriodEnd,
   applyPeriodStart,
+  applyPastPeriod,
   initialCycle,
   removeLatestCycle,
+  removePastCycle,
   type CycleError,
 } from '../domain/cycles';
 import { isDateKey, type DateKey } from '../domain/dates';
@@ -162,6 +164,20 @@ export async function savePeriodEnd(
 
 export async function saveRemoveLatest(db: SQLiteDatabase, cycles: Cycle[]): Promise<CycleError | null> {
   return persistUpdate(db, removeLatestCycle(cycles));
+}
+
+export async function savePastPeriod(
+  db: SQLiteDatabase,
+  cycles: Cycle[],
+  start: DateKey,
+  end: DateKey,
+  today: DateKey,
+): Promise<CycleError | null> {
+  return persistUpdate(db, applyPastPeriod(cycles, start, end, today));
+}
+
+export async function saveRemovePast(db: SQLiteDatabase, cycles: Cycle[], start: DateKey): Promise<CycleError | null> {
+  return persistUpdate(db, removePastCycle(cycles, start));
 }
 
 export async function saveFertileWindow(db: SQLiteDatabase, show: boolean): Promise<void> {

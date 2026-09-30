@@ -56,11 +56,13 @@ export function DateField({
   hint,
   value,
   onChange,
+  minimumDate,
 }: {
   label: string;
   hint: string;
   value: string;
   onChange: (value: string) => void;
+  minimumDate?: Date;
 }) {
   const [open, setOpen] = useState(false);
 
@@ -89,6 +91,7 @@ export function DateField({
               mode="date"
               display={Platform.OS === 'ios' ? 'spinner' : 'default'}
               maximumDate={endOfToday()}
+              minimumDate={minimumDate}
               onValueChange={(_event, date) => {
                 if (Platform.OS === 'android') setOpen(false);
                 onChange(format(date, 'yyyy-MM-dd'));

@@ -45,6 +45,16 @@ export type Messages = {
   removePeriodBody: string;
   cancel: string;
   remove: string;
+  addPastPeriod: string;
+  pastPeriodHint: string;
+  pastPeriodStarted: string;
+  pastPeriodStartedHint: string;
+  pastPeriodEnded: string;
+  pastPeriodEndedHint: string;
+  savePastPeriod: string;
+  removePastPeriod: string;
+  removePastTitle: string;
+  removePastBody: string;
   logThroughToday: string;
   day: string;
   dateWithYear: string;
@@ -131,6 +141,16 @@ export const en: Messages = {
   removePeriodBody: 'This removes the latest period from this phone.',
   cancel: 'Cancel',
   remove: 'Remove',
+  addPastPeriod: 'Add an earlier period',
+  pastPeriodHint: 'A period that already ended, before the most recent one. Add them one at a time.',
+  pastPeriodStarted: 'Started',
+  pastPeriodStartedHint: 'The first day of bleeding.',
+  pastPeriodEnded: 'Ended',
+  pastPeriodEndedHint: 'The last day of bleeding.',
+  savePastPeriod: 'Save period',
+  removePastPeriod: 'Remove',
+  removePastTitle: 'Remove this period?',
+  removePastBody: 'This deletes it from the record on this phone.',
   logThroughToday: 'You can log a period through today.',
   day: 'Day',
   dateWithYear: 'MMMM d, yyyy',
@@ -190,5 +210,7 @@ export const en: Messages = {
     'no-open-period': 'There is no open period to end.',
     'before-start': 'The period cannot end before it starts.',
     'nothing-to-remove': 'There is no period to remove.',
+    'not-past': 'This period has to start before the most recent one.',
+    overlaps: 'These dates overlap a period that is already saved.',
   },
 };

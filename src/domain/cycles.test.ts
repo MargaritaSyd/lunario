@@ -1,4 +1,4 @@
-import { applyPeriodEnd, applyPeriodStart, initialCycle, removeLatestCycle } from './cycles';
+import { applyPastPeriod, applyPeriodEnd, applyPeriodStart, initialCycle, removeLatestCycle, removePastCycle } from './cycles';
 import type { Cycle } from './predict';
 
 function cycle(startDate: string, endDate: string | null): Cycle {
@@ -61,6 +61,38 @@ describe('applyPeriodEnd', () => {
     expect(applyPeriodEnd([cycle('2026-09-28', null)], '2026-09-27', '2026-09-30')).toMatchObject({
       error: 'before-start',
     });
+  });
+});
+
+describe('applyPastPeriod', () => {
+  const today = '2026-09-30';
+
+  it('inserts a finished period before the most recent one, including into a gap', () => {
+    const cycles = [cycle('2026-03-01', '2026-03-05'), cycle('2026-05-01', null)];
+
+    expect(applyPastPeriod(cycles, '2026-01-01', '2026-01-05', today)).toEqual({
+      ok: true,
+      cycles: [cycle('2026-01-01', '2026-01-05'), cycle('2026-03-01', '2026-03-05'), cycle('2026-05-01', null)],
+    });
+    expect(applyPastPeriod(cycles, '2026-04-01', '2026-04-04', today).ok).toBe(true);
+  });
+
+  it('rejects a future date, an end before the start, the latest period, and an overlap', () => {
+    const cycles = [cycle('2026-09-01', '2026-09-05'), cycle('2026-09-20', null)];
+
+    expect(applyPastPeriod(cycles, '2026-10-01', '2026-10-05', today)).toMatchObject({ error: 'future' });
+    expect(applyPastPeriod(cycles, '2026-08-10', '2026-08-01', today)).toMatchObject({ error: 'before-start' });
+    expect(applyPastPeriod(cycles, '2026-09-20', '2026-09-24', today)).toMatchObject({ error: 'not-past' });
+    expect(applyPastPeriod(cycles, '2026-08-28', '2026-09-02', today)).toMatchObject({ error: 'overlaps' });
+  });
+});
+
+describe('removePastCycle', () => {
+  it('removes an earlier period and keeps the latest', () => {
+    const cycles = [cycle('2026-08-01', '2026-08-05'), cycle('2026-09-01', null)];
+
+    expect(removePastCycle(cycles, '2026-08-01')).toEqual({ ok: true, cycles: [cycle('2026-09-01', null)] });
+    expect(removePastCycle(cycles, '2026-09-01')).toMatchObject({ error: 'not-past' });
   });
 });
 

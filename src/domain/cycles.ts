@@ -8,7 +8,9 @@ export type CycleError =
   | 'before-latest'
   | 'no-open-period'
   | 'before-start'
-  | 'nothing-to-remove';
+  | 'nothing-to-remove'
+  | 'not-past'
+  | 'overlaps';
 
 export type CycleUpdate = { ok: true; cycles: Cycle[] } | { ok: false; error: CycleError };
 
@@ -60,4 +62,33 @@ export function removeLatestCycle(cycles: Cycle[]): CycleUpdate {
   const sorted = sortCycles(cycles);
   if (sorted.length === 0) return { ok: false, error: 'nothing-to-remove' };
   return { ok: true, cycles: sorted.slice(0, -1).map((cycle) => ({ ...cycle })) };
+}
+
+/** Inserts a finished period that starts before the most recent one. */
+export function applyPastPeriod(cycles: Cycle[], start: DateKey, end: DateKey, today: DateKey): CycleUpdate {
+  if (start > today || end > today) return { ok: false, error: 'future' };
+  if (end < start) return { ok: false, error: 'before-start' };
+
+  const sorted = sortCycles(cycles);
+  const latest = sorted[sorted.length - 1];
+  if (!latest || start >= latest.startDate) return { ok: false, error: 'not-past' };
+
+  for (const cycle of sorted) {
+    const cycleEnd = cycle.endDate ?? '9999-12-31';
+    if (start <= cycleEnd && cycle.startDate <= end) return { ok: false, error: 'overlaps' };
+  }
+
+  return {
+    ok: true,
+    cycles: sortCycles([...sorted.map((cycle) => ({ ...cycle })), { startDate: start, endDate: end }]),
+  };
+}
+
+/** Removes a period that is not the most recent one. */
+export function removePastCycle(cycles: Cycle[], start: DateKey): CycleUpdate {
+  const sorted = sortCycles(cycles);
+  const latest = sorted[sorted.length - 1];
+  if (!latest || latest.startDate === start) return { ok: false, error: 'not-past' };
+  if (!sorted.some((cycle) => cycle.startDate === start)) return { ok: false, error: 'nothing-to-remove' };
+  return { ok: true, cycles: sorted.filter((cycle) => cycle.startDate !== start) };
 }

@@ -8,10 +8,12 @@ import {
   saveDayLog,
   saveFertileWindow,
   saveOnboarding,
+  savePastPeriod,
   savePeriodEnd,
   savePeriodStart,
   saveReminder,
   saveRemoveLatest,
+  saveRemovePast,
   type Settings,
 } from '../db/database';
 import type { CycleError } from '../domain/cycles';
@@ -35,6 +37,8 @@ type LunarioContextValue = {
   logPeriodStart: (date: DateKey) => Promise<CycleError | null>;
   logPeriodEnd: (date: DateKey) => Promise<CycleError | null>;
   removeLatestPeriod: () => Promise<CycleError | null>;
+  logPastPeriod: (start: DateKey, end: DateKey) => Promise<CycleError | null>;
+  removePastPeriod: (start: DateKey) => Promise<CycleError | null>;
   setShowFertileWindow: (show: boolean) => Promise<void>;
   saveLog: (log: DayLog) => Promise<void>;
   setReminder: (enabled: boolean, daysBefore: number) => Promise<ReminderError | null>;
@@ -129,6 +133,20 @@ export function LunarioProvider({ children }: { children: ReactNode }) {
         const db = dbRef.current;
         if (!db) return null;
         const result = await saveRemoveLatest(db, cycles);
+        if (!result) await reload(db);
+        return result;
+      },
+      async logPastPeriod(start, end) {
+        const db = dbRef.current;
+        if (!db) return null;
+        const result = await savePastPeriod(db, cycles, start, end, todayKey());
+        if (!result) await reload(db);
+        return result;
+      },
+      async removePastPeriod(start) {
+        const db = dbRef.current;
+        if (!db) return null;
+        const result = await saveRemovePast(db, cycles, start);
         if (!result) await reload(db);
         return result;
       },
