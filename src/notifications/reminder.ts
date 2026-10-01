@@ -51,7 +51,8 @@ function loadNotifications(): Promise<NotificationApi | null> {
         requestPermissionsAsync: permissions.requestPermissionsAsync,
         cancelAllScheduledNotificationsAsync: cancel.cancelAllScheduledNotificationsAsync,
         setNotificationChannelAsync: channel.setNotificationChannelAsync,
-        scheduleNotificationAsync: schedule.scheduleNotificationAsync,
+        scheduleNotificationAsync:
+          schedule.scheduleNotificationAsync as NotificationApi['scheduleNotificationAsync'],
         dateTrigger: types.SchedulableTriggerInputTypes.DATE,
         importanceDefault: importance.AndroidImportance.DEFAULT,
       };

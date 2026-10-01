@@ -1,5 +1,5 @@
 import type { CycleError } from '../domain/cycles';
-import type { Discharge, Flow, Mood, Pain, Sensation } from '../domain/log';
+import type { Discharge, Flow, Mood, Pain, PainIntensity, Sensation } from '../domain/log';
 import type { OnboardingError } from '../domain/onboarding';
 
 export type WeekdayLabels = [string, string, string, string, string, string, string];
@@ -69,6 +69,7 @@ export type Messages = {
   flow: string;
   sensations: string;
   pain: string;
+  painIntensity: string;
   mood: string;
   discharge: string;
   note: string;
@@ -77,6 +78,7 @@ export type Messages = {
   flowOption: Record<Flow, string>;
   sensationOption: Record<Sensation, string>;
   painOption: Record<Pain, string>;
+  painIntensityOption: Record<PainIntensity, string>;
   moodOption: Record<Mood, string>;
   dischargeOption: Record<Discharge, string>;
   history: string;
@@ -172,6 +174,7 @@ export const en: Messages = {
   flow: 'Flow',
   sensations: 'Sensations',
   pain: 'Pains',
+  painIntensity: 'Intensity',
   mood: 'Moods',
   discharge: 'Discharge',
   note: 'Note',
@@ -198,6 +201,8 @@ export const en: Messages = {
     breasts: 'Breasts',
     'low-back': 'Low back',
     pelvis: 'Pelvis',
+  },
+  painIntensityOption: {
     mild: 'Mild',
     moderate: 'Moderate',
     severe: 'Severe',

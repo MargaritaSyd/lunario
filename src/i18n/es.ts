@@ -65,6 +65,7 @@ export const es: Messages = {
   flow: 'Sangrado',
   sensations: 'Sensaciones',
   pain: 'Dolores',
+  painIntensity: 'Intensidad',
   mood: 'Humor',
   discharge: 'Flujo',
   note: 'Nota',
@@ -91,6 +92,8 @@ export const es: Messages = {
     breasts: 'Pechos',
     'low-back': 'Lumbar',
     pelvis: 'Pelvis',
+  },
+  painIntensityOption: {
     mild: 'Leve',
     moderate: 'Moderado',
     severe: 'Fuerte',

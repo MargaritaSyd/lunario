@@ -73,6 +73,9 @@ export async function openDatabase(): Promise<SQLiteDatabase> {
   if (!columns.some((column) => column.name === 'sensations')) {
     await db.execAsync('ALTER TABLE logs ADD COLUMN sensations TEXT');
   }
+  if (!columns.some((column) => column.name === 'pain_intensity')) {
+    await db.execAsync('ALTER TABLE logs ADD COLUMN pain_intensity TEXT');
+  }
   return db;
 }
 
@@ -95,7 +98,7 @@ export async function loadState(
     'SELECT start_date, end_date FROM cycles ORDER BY start_date',
   );
   const logRows = await db.getAllAsync<StoredLog>(
-    'SELECT date, flow, sensations, pain, mood, discharge, note FROM logs ORDER BY date',
+    'SELECT date, flow, sensations, pain, pain_intensity AS painIntensity, mood, discharge, note FROM logs ORDER BY date',
   );
   return {
     settings: row ? mapSettings(row) : null,
@@ -205,11 +208,12 @@ export async function saveDayLog(db: SQLiteDatabase, log: DayLog, today: DateKey
     return;
   }
   await db.runAsync(
-    `INSERT INTO logs (date, flow, sensations, pain, mood, discharge, note) VALUES (?, ?, ?, ?, ?, ?, ?)
+    `INSERT INTO logs (date, flow, sensations, pain, pain_intensity, mood, discharge, note) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
      ON CONFLICT(date) DO UPDATE SET
        flow = excluded.flow,
        sensations = excluded.sensations,
        pain = excluded.pain,
+       pain_intensity = excluded.pain_intensity,
        mood = excluded.mood,
        discharge = excluded.discharge,
        note = excluded.note`,
@@ -217,6 +221,7 @@ export async function saveDayLog(db: SQLiteDatabase, log: DayLog, today: DateKey
     stored.flow,
     encodeList(stored.sensations),
     encodeList(stored.pains),
+    stored.painIntensity,
     encodeList(stored.moods),
     stored.discharge,
     stored.note,

@@ -1,7 +1,17 @@
 import { useEffect, useState } from 'react';
 import { StyleSheet, Text, TextInput, View } from 'react-native';
 
-import { DISCHARGES, FLOWS, MOODS, NOTE_LIMIT, PAINS, SENSATIONS, normalizeNote, type DayLog } from '../domain/log';
+import {
+  DISCHARGES,
+  FLOWS,
+  MOODS,
+  NOTE_LIMIT,
+  PAINS,
+  PAIN_INTENSITIES,
+  SENSATIONS,
+  normalizeNote,
+  type DayLog,
+} from '../domain/log';
 import { messages } from '../i18n';
 import { theme } from '../theme';
 import { Button } from './button';
@@ -17,6 +27,7 @@ function sameLog(a: DayLog, b: DayLog): boolean {
     a.flow === b.flow &&
     sameList(a.sensations, b.sensations) &&
     sameList(a.pains, b.pains) &&
+    a.painIntensity === b.painIntensity &&
     sameList(a.moods, b.moods) &&
     a.discharge === b.discharge &&
     normalizeNote(a.note) === normalizeNote(b.note)
@@ -69,6 +80,13 @@ export function LogForm({ saved, onSave }: { saved: DayLog; onSave: (log: DayLog
         options={PAINS}
         labels={messages.painOption}
         onChange={(pains) => setDraft((current) => ({ ...current, pains }))}
+      />
+      <Choices
+        label={messages.painIntensity}
+        value={draft.painIntensity}
+        options={PAIN_INTENSITIES}
+        labels={messages.painIntensityOption}
+        onChange={(painIntensity) => setDraft((current) => ({ ...current, painIntensity }))}
       />
       <MultiChoices
         label={messages.mood}
