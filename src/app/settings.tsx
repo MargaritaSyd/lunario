@@ -7,9 +7,10 @@ import { NumberField } from '../components/fields';
 import { Screen } from '../components/screen';
 import { useLunario } from '../context/lunario';
 import { todayKey } from '../domain/dates';
-import { buildExport } from '../domain/export';
+import { buildCsv } from '../domain/export';
 import { clampReminderDays } from '../domain/reminder';
-import { shareJson } from '../export/share';
+import { exportLabels } from '../export/labels';
+import { shareCsv } from '../export/share';
 import { messages } from '../i18n';
 import { theme } from '../theme';
 
@@ -52,8 +53,7 @@ export default function SettingsScreen() {
     setExportError(null);
     try {
       const today = todayKey();
-      const document = buildExport({ exportedOn: today, settings, cycles, logs });
-      await shareJson(`lunario-${today}.json`, `${JSON.stringify(document, null, 2)}\n`);
+      await shareCsv(`lunario-${today}.csv`, buildCsv({ today, cycles, logs, labels: exportLabels() }));
     } catch (cause) {
       console.error(cause);
       setExportError(messages.exportFailed);

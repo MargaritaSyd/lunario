@@ -101,6 +101,11 @@ export type Messages = {
   exportData: string;
   exportHint: string;
   exportFailed: string;
+  exportDate: string;
+  exportPeriodStart: string;
+  exportPeriodEnd: string;
+  yes: string;
+  no: string;
   deleteAll: string;
   deleteAllTitle: string;
   deleteAllBody: string;
@@ -235,8 +240,13 @@ export const en: Messages = {
   reminderTomorrow: 'Your period is estimated to start tomorrow.',
   reminderInDays: 'Your period is estimated to start in {{count}} days.',
   exportData: 'Export',
-  exportHint: 'A JSON file of what is stored on this phone.',
+  exportHint: 'A spreadsheet of the periods and what was logged on each day.',
   exportFailed: 'Could not export the file.',
+  exportDate: 'Date',
+  exportPeriodStart: 'Period start',
+  exportPeriodEnd: 'Period end',
+  yes: 'Yes',
+  no: 'No',
   deleteAll: 'Delete everything',
   deleteAllTitle: 'Delete everything?',
   deleteAllBody: 'This deletes periods, notes, and settings from this phone.',
