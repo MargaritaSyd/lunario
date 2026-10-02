@@ -1,4 +1,15 @@
-import { blankLog, encodeList, isEmptyLog, normalizeNote, parseStoredLog } from './log';
+import { blankLog, encodeList, isEmptyLog, normalizeNote, parseStoredLog, sameLog } from './log';
+
+describe('sameLog', () => {
+  it('ignores surrounding spaces and notices a real change', () => {
+    const saved = { ...blankLog('2026-09-30'), flow: 'light' as const, sensations: ['bloating', 'fatigue'], note: 'hola' };
+
+    expect(sameLog(saved, { ...saved, note: '  hola  ' })).toBe(true);
+    expect(sameLog(saved, { ...saved, flow: 'heavy' })).toBe(false);
+    expect(sameLog(saved, { ...saved, sensations: ['fatigue', 'bloating'] })).toBe(false);
+    expect(sameLog(saved, { ...saved, painIntensity: 'mild' })).toBe(false);
+  });
+});
 
 describe('day log', () => {
   it('treats a blank day as empty and keeps several sensations, pains, and moods', () => {

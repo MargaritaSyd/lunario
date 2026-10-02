@@ -1,4 +1,12 @@
-import { applyPastPeriod, applyPeriodEnd, applyPeriodStart, initialCycle, removeLatestCycle, removePastCycle } from './cycles';
+import {
+  applyPastPeriod,
+  applyPeriodEnd,
+  applyPeriodStart,
+  initialCycle,
+  removeLatestCycle,
+  removePastCycle,
+  suggestedPastPeriod,
+} from './cycles';
 import type { Cycle } from './predict';
 
 function cycle(startDate: string, endDate: string | null): Cycle {
@@ -93,6 +101,39 @@ describe('removePastCycle', () => {
 
     expect(removePastCycle(cycles, '2026-08-01')).toEqual({ ok: true, cycles: [cycle('2026-09-01', null)] });
     expect(removePastCycle(cycles, '2026-09-01')).toMatchObject({ error: 'not-past' });
+  });
+});
+
+describe('suggestedPastPeriod', () => {
+  const today = '2026-09-30';
+
+  it('places a usual period one cycle before the earliest start', () => {
+    expect(suggestedPastPeriod('2026-09-29', 28, 5, today)).toEqual({
+      start: '2026-09-01',
+      end: '2026-09-05',
+    });
+  });
+
+  it('stops the day before the earliest start and does not run past today', () => {
+    expect(suggestedPastPeriod('2026-09-03', 3, 5, '2026-10-01')).toEqual({
+      start: '2026-08-31',
+      end: '2026-09-02',
+    });
+    expect(suggestedPastPeriod('2026-10-20', 28, 10, today)).toEqual({
+      start: '2026-09-22',
+      end: '2026-09-30',
+    });
+  });
+
+  it('does not end before it starts', () => {
+    expect(suggestedPastPeriod('2026-09-01', 0, 5, today)).toEqual({
+      start: '2026-09-01',
+      end: '2026-09-01',
+    });
+    expect(suggestedPastPeriod('2026-10-20', 5, 5, today)).toEqual({
+      start: '2026-09-30',
+      end: '2026-09-30',
+    });
   });
 });
 

@@ -84,6 +84,25 @@ export function applyPastPeriod(cycles: Cycle[], start: DateKey, end: DateKey, t
   };
 }
 
+/**
+ * A finished period one usual cycle before the earliest logged start.
+ * The end stays on or before today and does not overlap that start.
+ */
+export function suggestedPastPeriod(
+  earliestStart: DateKey,
+  cycleLength: number,
+  periodLength: number,
+  today: DateKey,
+): { start: DateKey; end: DateKey } {
+  const proposed = addDaysKey(earliestStart, -cycleLength);
+  let start = proposed > today ? today : proposed;
+  let end = addDaysKey(start, periodLength - 1);
+  if (end >= earliestStart) end = addDaysKey(earliestStart, -1);
+  if (end < start) end = start;
+  if (end > today) end = today;
+  return { start, end };
+}
+
 /** Removes a period that is not the most recent one. */
 export function removePastCycle(cycles: Cycle[], start: DateKey): CycleUpdate {
   const sorted = sortCycles(cycles);

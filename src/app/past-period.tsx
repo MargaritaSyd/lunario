@@ -7,27 +7,19 @@ import { Button } from '../components/button';
 import { DateField } from '../components/fields';
 import { Screen } from '../components/screen';
 import { useLunario } from '../context/lunario';
-import { addDaysKey, isDateKey, todayKey } from '../domain/dates';
+import { suggestedPastPeriod } from '../domain/cycles';
+import { isDateKey, todayKey } from '../domain/dates';
 import { sortCycles } from '../domain/predict';
 import { messages } from '../i18n';
 import { theme } from '../theme';
 
-function suggestedPastPeriod(startDate: string, periodLength: number, earliestStart: string): { start: string; end: string } {
-  const today = todayKey();
-  let start = startDate > today ? today : startDate;
-  let end = addDaysKey(start, periodLength - 1);
-  if (end >= earliestStart) end = addDaysKey(earliestStart, -1);
-  if (end < start) end = start;
-  if (end > today) end = today;
-  return { start, end };
-}
-
 export default function PastPeriodScreen() {
   const { settings, cycles, logPastPeriod } = useLunario();
+  const today = todayKey();
   const earliest = sortCycles(cycles)[0];
   const suggested = earliest
-    ? suggestedPastPeriod(addDaysKey(earliest.startDate, -(settings?.cycleLength ?? 28)), settings?.periodLength ?? 5, earliest.startDate)
-    : { start: todayKey(), end: todayKey() };
+    ? suggestedPastPeriod(earliest.startDate, settings?.cycleLength ?? 28, settings?.periodLength ?? 5, today)
+    : { start: today, end: today };
   const [start, setStart] = useState(suggested.start);
   const [end, setEnd] = useState(suggested.end);
   const [error, setError] = useState<string | null>(null);

@@ -10,6 +10,7 @@ import {
   PAIN_INTENSITIES,
   SENSATIONS,
   normalizeNote,
+  sameLog,
   type DayLog,
 } from '../domain/log';
 import { messages } from '../i18n';
@@ -17,22 +18,6 @@ import { theme } from '../theme';
 import { Button } from './button';
 import { Choices, MultiChoices } from './choices';
 import { Field } from './fields';
-
-function sameList(left: readonly string[], right: readonly string[]): boolean {
-  return left.length === right.length && left.every((item, index) => item === right[index]);
-}
-
-function sameLog(a: DayLog, b: DayLog): boolean {
-  return (
-    a.flow === b.flow &&
-    sameList(a.sensations, b.sensations) &&
-    sameList(a.pains, b.pains) &&
-    a.painIntensity === b.painIntensity &&
-    sameList(a.moods, b.moods) &&
-    a.discharge === b.discharge &&
-    normalizeNote(a.note) === normalizeNote(b.note)
-  );
-}
 
 export function LogForm({ saved, onSave }: { saved: DayLog; onSave: (log: DayLog) => Promise<void> }) {
   const [draft, setDraft] = useState(saved);

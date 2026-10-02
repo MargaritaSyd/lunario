@@ -50,6 +50,22 @@ export function encodeList(values: readonly string[]): string | null {
   return values.length === 0 ? null : values.join(',');
 }
 
+function sameList(left: readonly string[], right: readonly string[]): boolean {
+  return left.length === right.length && left.every((item, index) => item === right[index]);
+}
+
+export function sameLog(a: DayLog, b: DayLog): boolean {
+  return (
+    a.flow === b.flow &&
+    sameList(a.sensations, b.sensations) &&
+    sameList(a.pains, b.pains) &&
+    a.painIntensity === b.painIntensity &&
+    sameList(a.moods, b.moods) &&
+    a.discharge === b.discharge &&
+    normalizeNote(a.note) === normalizeNote(b.note)
+  );
+}
+
 export function isEmptyLog(log: DayLog): boolean {
   return (
     log.flow === null &&
