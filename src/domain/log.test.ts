@@ -31,6 +31,31 @@ describe('day log', () => {
     expect(encodeList([])).toBeNull();
   });
 
+  it('drops unknown values and prefers the intensity column', () => {
+    expect(
+      parseStoredLog({
+        date: '2026-09-30',
+        flow: 'torrent',
+        sensations: ' bloating , nope , fatigue ',
+        pain: 'mild,cramps',
+        painIntensity: 'severe',
+        mood: 'furious',
+        discharge: 'watery',
+        note: null,
+      }),
+    ).toEqual({
+      date: '2026-09-30',
+      flow: null,
+      sensations: ['bloating', 'fatigue'],
+      pains: ['cramps'],
+      painIntensity: 'severe',
+      moods: [],
+      discharge: null,
+      note: '',
+    });
+    expect(isEmptyLog({ ...blankLog('2026-09-30'), painIntensity: 'mild' })).toBe(false);
+  });
+
   it('trims a note to the limit', () => {
     expect(normalizeNote('  hello  ')).toBe('hello');
     expect(normalizeNote('a'.repeat(600))).toHaveLength(500);

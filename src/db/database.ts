@@ -68,6 +68,12 @@ CREATE TABLE IF NOT EXISTS logs (
 
 export async function openDatabase(): Promise<SQLiteDatabase> {
   const db = await openDatabaseAsync('lunario.db');
+  await prepareDatabase(db);
+  return db;
+}
+
+/** Creates the tables and adds columns introduced after the first schema. */
+export async function prepareDatabase(db: SQLiteDatabase): Promise<void> {
   await db.execAsync(SCHEMA);
   const columns = await db.getAllAsync<{ name: string }>('PRAGMA table_info(logs)');
   if (!columns.some((column) => column.name === 'sensations')) {
@@ -76,7 +82,6 @@ export async function openDatabase(): Promise<SQLiteDatabase> {
   if (!columns.some((column) => column.name === 'pain_intensity')) {
     await db.execAsync('ALTER TABLE logs ADD COLUMN pain_intensity TEXT');
   }
-  return db;
 }
 
 function mapSettings(row: SettingsRow): Settings {
