@@ -19,6 +19,8 @@ type NotificationApi = {
   importanceDefault: number;
 };
 
+type LoadNotifications = () => Promise<NotificationApi | null>;
+
 let loading: Promise<NotificationApi | null> | null = null;
 
 /**
@@ -64,8 +66,8 @@ function loadNotifications(): Promise<NotificationApi | null> {
   return loading;
 }
 
-export async function ensureNotificationPermission(): Promise<boolean> {
-  const notifications = await loadNotifications();
+export async function ensureNotificationPermission(load: LoadNotifications = loadNotifications): Promise<boolean> {
+  const notifications = await load();
   if (!notifications) return false;
   const current = await notifications.getPermissionsAsync();
   if (current.granted) return true;
@@ -73,9 +75,9 @@ export async function ensureNotificationPermission(): Promise<boolean> {
   return next.granted;
 }
 
-export async function cancelReminder(): Promise<void> {
+export async function cancelReminder(load: LoadNotifications = loadNotifications): Promise<void> {
   try {
-    const notifications = await loadNotifications();
+    const notifications = await load();
     if (!notifications) return;
     await notifications.cancelAllScheduledNotificationsAsync();
   } catch (cause) {
@@ -92,11 +94,11 @@ export async function syncReminder(input: {
   title: string;
   body: string;
   channelName: string;
-}): Promise<void> {
-  await cancelReminder();
+}, load: LoadNotifications = loadNotifications): Promise<void> {
+  await cancelReminder(load);
   if (!input.enabled || !input.nextStart) return;
 
-  const notifications = await loadNotifications();
+  const notifications = await load();
   if (!notifications) return;
 
   try {
